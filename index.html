@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テスト分析前処理ツール</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --button-text-color: #ffffff;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 50px;
+        }
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .btn:hover, .btn:focus {
+            background-color: #2980b9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .btn:focus {
+            outline: 3px solid #f39c12;
+            outline-offset: 2px;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #27ae60;
+        }
+        #upload {
+            display: none;
+        }
+        .file-upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .file-upload-label:hover, .file-upload-label:focus {
+            background-color: #2980b9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .file-upload-label:focus {
+            outline: 3px solid #f39c12;
+            outline-offset: 2px;
+        }
+        .download-links a {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .download-links a:hover, .download-links a:focus {
+            background-color: #2980b9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .download-links a:focus {
+            outline: 3px solid #f39c12;
+            outline-offset: 2px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>テスト分析前処理ツール</h1>
+        
+        <div class="card">
+            <p>このシステムは、百問繚乱から出力された設問データを、各分析ソフトで読み込み可能なExcelファイルに変換します。選択した画像は外部サーバーにはアップロードされず、ブラウザ上でデータは処理されます。</p>
+            
+            <label for="upload" class="file-upload-label" tabindex="0">ファイルを選択</label>
+            <input type="file" id="upload" accept=".xlsx" />
+            <button onclick="processFile()" class="btn btn-secondary">処理開始</button>
+            
+            <div class="download-links">
+                <a id="downloadLink1" href="#" style="display: none;">1_CTT_ResponseData.xlsx ダウンロード</a>
+                <a id="downloadLink2" href="#" style="display: none;">2_CTT_AnswerKey.xlsx ダウンロード</a>
+                <a id="downloadLink3" href="#" style="display: none;">3_Exametrika_binary.xlsx ダウンロード</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>古典テスト理論による分析</h2>
+            <p>
+                出力された1_CTT...と2_CTT...は、名古屋大学 石井研究室が公開している
+                <a href="https://www.educa.nagoya-u.ac.jp/~ishii-h/test_system.html" target="_blank" rel="noopener noreferrer">項目分析システム</a>で読み込むことができます。
+            </p>
+            <p>
+                <a href="https://huangshan.shinyapps.io/ItemAnalysisSystem/" target="_blank" rel="noopener noreferrer">項目分析Webシステム</a>で読み込む場合は、以下の画像のように設定してください。
+            </p>
+            <img src="figs\CTT_setting.png" alt="CTT設定の画像">
+            <p>
+                ※個人的には、Excelシステムの方が色つきの見やすい分析結果が表示される印象です。ただし、Windowsでしか動作しません。
+            </p>
+        </div>
+        
+        <div class="card">
+            <h2>項目反応理論による分析</h2>
+            <p>
+                3_Exametrika_binary.xlsx は、大学入試センター 研究開発部 教授の荘島宏二郎様が公開している
+                <a href="http://shojima.starfree.jp/exmk/jindex.htm" target="_blank" rel="noopener noreferrer">Exametrika</a>
+                というExcelアドインソフトで読み込むことが可能です。
+            </p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
