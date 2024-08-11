@@ -77,3 +77,34 @@ function createDownloadLink(workbook, filename, linkId) {
   downloadLink.style.display = 'block';
   downloadLink.textContent = filename + ' ダウンロード';
 }
+
+
+document.getElementById('templatedownloadBtn').addEventListener('click', function() {
+    // データの生成
+    const data = [
+        ["free1", "free2", "free3", "生徒ID", "free4", "free5", "free6", "Name", "free7", "Q001", "Q002", "Q003", "Q004", "Q005", "Q006", "Q007", "Q008", "Q009", "Q010"],
+        ["2024", "1学期期末試験", "物理基礎", "S001", "1年", "1組", "1", "サンプル一郎", "M", 2, 3, 2, 2, 2, 2, 0, 0, 0, 0],
+        ["2024", "1学期期末試験", "物理基礎", "S002", "1年", "2組", "2", "サンプル次郎", "F", 2, 3, 2, 2, 0, 2, 2, 0, 0, 2]
+    ];
+
+    // ワークブックとワークシートの作成
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // ファイルの生成とダウンロード
+    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+
+    // ダウンロードリンクの作成
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'テンプレート_テスト分析前処理ツール.xlsx';
+    document.body.appendChild(a);
+    a.click();
+
+    // リソースの解放
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+});
