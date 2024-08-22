@@ -1,93 +1,113 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebR 実行例</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            color: #333;
-        }
-        .container {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        pre {
-            background: #e8e8e8;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebR 実行例</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    pre {
+      background: #e8e8e8;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Rコードの実行例</h1>
-        <p>このページでは、<code>WebR</code>を使用してRコードをブラウザで直接実行し、その結果を表示します。以下のコードは、<code>mtcars</code>データセットを使用して、<code>mpg</code>（燃費）と<code>am</code>（トランスミッション）の関係を線形回帰でモデル化し、その結果を表示します。</p>
-        
-        <h2>Rコード:</h2>
-        <pre><code>
-fit <- lm(mpg ~ am, data=mtcars)
-summary_output <- capture.output(summary(fit))
-paste(summary_output, collapse = "\n")
-        </code></pre>
-        
-        <button id="run-button">コードを実行</button>
-        
-        <h2>実行結果:</h2>
-        <div>
-            <pre><code id="out">ここに結果が表示されます...</code></pre>
-        </div>
+  <div class="container">
+    <h1>Rコードの実行例</h1>
+    <p>
+      このページでは、<code>WebR</code>を使用してRコードをブラウザで直接実行し、その結果を表示します。以下のコードは、<code>mtcars</code>データセットを使用して、<code>mpg</code>（燃費）と<code>am</code>（トランスミッション）の関係を線形回帰でモデル化し、その結果を表示します。
+    </p>
+
+    <h2>Rコード:</h2>
+    <pre><code id="r-code"></code></pre>
+
+    <button id="run-button">コードを実行</button>
+
+    <h2>実行結果:</h2>
+    <div>
+      <pre><code id="out">ここに結果が表示されます...</code></pre>
     </div>
+  </div>
 
-    <script type="module">
-        import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
+  <script type="module">
+    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
 
-        const outElem = document.getElementById('out');
-        const runButton = document.getElementById('run-button');
+    // Rコードを一箇所にまとめて変数として定義します
+    const rCode = `
+    
+tryCatch({
+    webr::install("Matrix")
+    "インストール成功"
+}, error = function(e) {
+    paste("エラーが発生しました:", e$message)
+})
+`;
 
-        runButton.addEventListener('click', async () => {
-            outElem.innerText = 'Rコードを実行中...';
-            
-            // WebRの初期化
-            const webR = new WebR({ interactive: false });
-            await webR.init();
+    // WebRの初期化を行います。これにより、ブラウザ内でRコードを実行できるようになります。
+    const webR = new WebR({ interactive: false });
+    await webR.init();
 
-            try {
-                // Rコードの実行
-                const result = await webR.evalRString(`
-                    fit <- lm(mpg ~ am, data=mtcars)
-                    summary_output <- capture.output(summary(fit))
-                    paste(summary_output, collapse = "\\n")
-                `);
+    // HTMLの要素を取得して、出力を表示するための準備をします。
+    const outElem = document.getElementById('out');
+    const rCodeElem = document.getElementById('r-code');
+    const runButton = document.getElementById('run-button');
 
-                // 結果の表示
-                outElem.innerText = result;
+    // RコードをHTML上にも表示します
+    rCodeElem.innerText = rCode.trim();
 
-            } catch (error) {
-                console.error("Rコードの実行中にエラーが発生しました: ", error);
-                outElem.innerText = 'エラーが発生しました: ' + error.message;
-            }
-        });
-    </script>
+    // ボタンがクリックされたときにRコードを実行するイベントリスナーを設定します。
+    runButton.addEventListener('click', async () => {
+      outElem.innerText = 'Rコードを実行中...';
+
+      try {
+        // まとめたRコードを実行します。
+        const result = await webR.evalRString(rCode);
+
+        // 実行結果を出力エリアに表示します。
+        outElem.innerText = result;
+
+      } catch (error) {
+        // エラーが発生した場合、コンソールにエラーメッセージを表示し、ユーザーに知らせます。
+        console.error("Rコードの実行中にエラーが発生しました: ", error);
+        outElem.innerText = 'エラーが発生しました: ' + error.message;
+      }
+    });
+  </script>
 </body>
+
 </html>
