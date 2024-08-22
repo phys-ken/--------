@@ -69,23 +69,41 @@
 
     // Rコードを一箇所にまとめて変数として定義します
     const rCode = `
-    # polycorパッケージのインストール
     webr::install("polycor")
-    
-    # ライブラリの読み込み
+    webr::install("subscore")
     library(polycor)
+    library(subscore)
 
     # サンプルデータの作成
     set.seed(123)
-    x <- rbinom(100, 1, 0.5)
-    y <- rbinom(100, 1, 0.7)
+    x <- rbinom(100, 1, 0.5)  # 2値データ（0と1）の生成
+    y <- rbinom(100, 1, 0.7)  # 2値データ（0と1）の生成
+    z <- rbinom(100, 1, 0.6)  # 追加の2値データ（0と1）の生成
 
-    # テトラコリック相関係数の計算
-    result <- hetcor(data.frame(x, y))
+    # データフレームの作成
+    scored.data <- data.frame(x, y, z)
+
+    # テトラコリック相関行列の計算
+    tetra_corr_matrix <- hetcor(scored.data)$correlations
+
+    # 固有値の計算
+    eigen_values <- eigen(tetra_corr_matrix)$values
+
+    # YenのQ3統計量の計算
+    q3_result <- Yen.Q3(scored.data, IRT.model="2pl")
 
     # 結果の表示
-    output <- capture.output(result)
+    output <- capture.output({
+        cat("テトラコリック相関行列:\\n")
+        print(tetra_corr_matrix)
+        cat("\\n固有値（スクリープロット用）:\\n")
+        print(eigen_values)
+        cat("\\nYenのQ3統計量:\\n")
+        print(q3_result$Q3)
+    })
+    
     paste(output, collapse = "\\n")
+
 `;
     // WebRの初期化を行います。これにより、ブラウザ内でRコードを実行できるようになります。
     const webR = new WebR({ interactive: false });
