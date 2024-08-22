@@ -69,15 +69,24 @@
 
     // Rコードを一箇所にまとめて変数として定義します
     const rCode = `
+    # polycorパッケージのインストール
+    webr::install("polycor")
     
-tryCatch({
-    webr::install("Matrix")
-    "インストール成功"
-}, error = function(e) {
-    paste("エラーが発生しました:", e$message)
-})
-`;
+    # ライブラリの読み込み
+    library(polycor)
 
+    # サンプルデータの作成
+    set.seed(123)
+    x <- rbinom(100, 1, 0.5)
+    y <- rbinom(100, 1, 0.7)
+
+    # テトラコリック相関係数の計算
+    result <- hetcor(data.frame(x, y))
+
+    # 結果の表示
+    output <- capture.output(result)
+    paste(output, collapse = "\\n")
+`;
     // WebRの初期化を行います。これにより、ブラウザ内でRコードを実行できるようになります。
     const webR = new WebR({ interactive: false });
     await webR.init();
