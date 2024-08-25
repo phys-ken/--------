@@ -126,31 +126,64 @@ saveButton.addEventListener('click', () => {
 const sampleCodes = {
   sample1: `
 # サンプルコード1
-webr::install("ggplot2")
-library(ggplot2)
-ggplot(mtcars, aes(x=wt, y=mpg)) + geom_point() + geom_smooth(method="lm")
+# クロンバックのα係数
+webr::install("ltm")
+library(ltm)
+alpha <- cronbach.alpha(testdata)
+
+# 結果の表示
+output <- capture.output({
+    cat("\nクロンバックのα係数:\n")
+    print(alpha)
+})
+paste(output, collapse = "\n")
+
   `,
   sample2: `
 # サンプルコード2
-webr::install("dplyr")
-library(dplyr)
-summary(mtcars)
+# Q3統計量(2PL)
+webr::install("subscore")
+library(subscore)
+q3_result <- Yen.Q3(testdata, IRT.model="2pl")
+
+# 結果の表示
+output <- capture.output({
+    cat("\nYenのQ3統計量:\n")
+    print(q3_result$Q3)
+})
+
+paste(output, collapse = "\n")
   `,
   sample3: `
 # サンプルコード3
-webr::install("ltm")
-library(ltm)
-cronbach.alpha(testdata)
-
-  `,
-  sample4: `
-# サンプルコード4
-# テトラコリック相関行列の固有値を表示
+# テトラコリック相関行列の固有値
 webr::install("polycor")
 library(polycor)
 tetra_corr_matrix <- hetcor(testdata)$correlations
 eigen_values <- eigen(tetra_corr_matrix)$values
-print(eigen_values)
+# 結果の表示
+output <- capture.output({
+    cat("\n固有値（スクリープロット用）:\n")
+    print(eigen_values)
+})
+paste(output, collapse = "\n")
+
+  `,
+  sample4: `
+# テンプレート
+webr::install("ltm") #ライブラリのインストール
+library(ltm)
+
+# 結果の表示
+output <- capture.output({
+###この中にprintやcatを表示###
+
+
+
+
+####ここまで###
+})
+paste(output, collapse = "\n")
   `
 };
 
