@@ -5,81 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>テスト分析ツールwebR</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f9f9f9;
-    }
-
-    h1 {
-      color: #333;
-    }
-
-    .container {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    textarea {
-      width: 100%;
-      height: 200px;
-      padding: 10px;
-      font-family: Consolas, 'Courier New', monospace;
-      font-size: 14px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    table,
-    th,
-    td {
-      border: 1px solid #ddd;
-    }
-
-    th,
-    td {
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-      color: #333;
-    }
-
-    td.highlight {
-      background-color: #ffffcc;
-    }
-
-    .info {
-      margin: 10px 0;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css"
 </head>
 
 <body>
@@ -102,6 +28,10 @@
 
     <h2>分析コードの実行</h2>
     <p>webRを使って、ブラウザ上でRを実行します。使えるライブラリに制限があります。</p>
+    <button class="sample-code-button" data-code="sample1">サンプルコード1</button>
+    <button class="sample-code-button" data-code="sample2">サンプルコード2</button>
+    <button class="sample-code-button" data-code="sample3">サンプルコード3</button>
+    <button class="sample-code-button" data-code="sample4">サンプルコード4</button>
     <textarea id="r-code">
 # デフォルトのRコード
 webr::install("polycor")
@@ -135,131 +65,7 @@ paste(output, collapse = "\n")
     </div>
   </div>
 
-  <script type="module">
-    import { WebR } from 'https://webr.r-wasm.org/latest/webr.mjs';
-
-    const webR = new WebR({ interactive: false });
-    await webR.init();
-
-    const outElem = document.getElementById('out');
-    const rCodeElem = document.getElementById('r-code');
-    const runButton = document.getElementById('run-button');
-
-    let testdataRData = '';
-    let testdataRows = 0;
-
-    runButton.addEventListener('click', async () => {
-      outElem.innerText = 'Rコードを実行中...';
-
-      try {
-        const rCode = `
-testdata <- as.data.frame(matrix(c(${testdataRData}), nrow=${testdataRows}, byrow=TRUE))
-${rCodeElem.value.trim()}
-        `;
-        const result = await webR.evalRString(rCode);
-
-        // 結果を表示
-        outElem.innerText = result;
-      } catch (error) {
-        console.error("Rコードの実行中にエラーが発生しました: ", error);
-        outElem.innerText = 'エラーが発生しました: ' + error.message;
-      }
-    });
-
-    document.getElementById('process-button').addEventListener('click', async () => {
-      const fileInput = document.getElementById('upload');
-      if (fileInput.files.length === 0) {
-        alert('ファイルを選択してください');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonSheet = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-      const processedData = jsonSheet.map((row, index) => {
-        if (index === 0) {
-          return ['ID', ...row.slice(2)];  // 1行目は見出し行
-        } else {
-          return [`${row[0]}-${row[1]}`, ...row.slice(2)];  // 1列目と2列目を結合してID列を作成
-        }
-      });
-
-      const totalRows = processedData.length - 1;
-      const totalColumns = processedData[0].length - 1;
-      const infoText = `受験者${totalRows}人、設問${totalColumns}問\n先頭の10行10列のみ表示`;
-      document.getElementById('data-info').innerText = infoText;
-
-      const tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
-      tableBody.innerHTML = '';
-
-      processedData.slice(0, 11).forEach((row, rowIndex) => {
-        const tr = document.createElement('tr');
-        row.slice(0, 11).forEach((cell, cellIndex) => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          if (rowIndex === 0 || cellIndex === 0) {
-            td.classList.add('highlight');
-          }
-          tr.appendChild(td);
-        });
-        tableBody.appendChild(tr);
-      });
-
-      // 全データをRに渡すために、R用のデータフォーマットを生成
-      testdataRData = processedData.slice(1).map(row => row.slice(1).join(", ")).join(", ");
-      testdataRows = totalRows;
-    });
-
-
-    document.getElementById('templatedownloadBtn_exmk').addEventListener('click', function () {
-      // データの生成
-      const data = [
-        ["生徒ID", "Name", "Q001", "Q002", "Q003", "Q004", "Q005", "Q006", "Q007", "Q008", "Q009", "Q010"],
-        ["S001", "サンプル一郎", 0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-        ["S002", "サンプル次郎", 1, 1, 1, 1, 0, 1, 1, 0, 0, 1]
-      ];
-
-      // ワークブックとワークシートの作成
-      const worksheet = XLSX.utils.aoa_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-      // ファイルの生成とダウンロード
-      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
-
-      // ダウンロードリンクの作成
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'テンプレート_webredu.xlsx';
-      document.body.appendChild(a);
-      a.click();
-
-      // リソースの解放
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    });
-
-    // 実行結果をテキストファイルとして保存するボタンの処理
-    const saveButton = document.getElementById('save-button');
-    saveButton.addEventListener('click', () => {
-      const text = outElem.innerText;
-      const blob = new Blob([text], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'result.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    });
-
-  </script>
+  <script type="module" src="script.js">  </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
