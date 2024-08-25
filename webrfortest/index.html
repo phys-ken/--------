@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebRとExcel処理の組み合わせ</title>
+  <title>テスト分析ツールwebR</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -84,12 +84,13 @@
 
 <body>
   <div class="container">
-    <h1>Excelデータの加工とWebRの統合</h1>
+    <h1>テスト分析ツールwebR</h1>
 
-    <button id="templatedownloadBtn_exmk">ダウンロード</button>
-    <h2>Excelファイルのアップロード</h2>
+    <button id="templatedownloadBtn_exmk">テンプレートファイルのダウンロードはこちら(.xlsx)</button>
+    <h2>ファイルのアップロード</h2>
+    <p>分析対象のExcelファイルを選択してください。ファイルは外部に送信されません。</p>
     <input type="file" id="upload" accept=".xlsx">
-    <button id="process-button">ファイルを処理</button>
+    <button id="process-button">データの確認</button>
 
     <h2>加工後のデータ</h2>
     <div id="data-info" class="info"></div>
@@ -99,28 +100,28 @@
       </tbody>
     </table>
 
-    <h2>Rコードの編集と実行</h2>
+    <h2>分析コードの実行</h2>
+    <p>webRを使って、ブラウザ上でRを実行します。使えるライブラリに制限があります。</p>
     <textarea id="r-code">
 # デフォルトのRコード
 webr::install("polycor")
 webr::install("subscore")
+library(ltm)
 library(polycor)
 library(subscore)
-tetra_corr_matrix <- hetcor(testscore)$correlations
+alpha <- cronbach.alpha(testdata)   #testdataにデータ行列が入っています。
+tetra_corr_matrix <- hetcor(testdata)$correlations
 eigen_values <- eigen(tetra_corr_matrix)$values
-q3_result <- Yen.Q3(testscore, IRT.model="2pl")
+q3_result <- Yen.Q3(testdata, IRT.model="2pl")
 
 # 結果の表示
 output <- capture.output({
-    cat("テトラコリック相関行列_polycor:\n")
-    print(tetra_corr_matrix)
+  cat("\nクロンバックのα:\n")
+  print(alpha)
     cat("\n固有値（スクリープロット用）:\n")
     print(eigen_values)
     cat("\nYenのQ3統計量:\n")
     print(q3_result$Q3)
-
-    cat("\n分析元データ:\n")
-    print(testscore)
 })
 
 paste(output, collapse = "\n")
@@ -144,15 +145,15 @@ paste(output, collapse = "\n")
     const rCodeElem = document.getElementById('r-code');
     const runButton = document.getElementById('run-button');
 
-    let testscoreRData = '';
-    let testscoreRows = 0;
+    let testdataRData = '';
+    let testdataRows = 0;
 
     runButton.addEventListener('click', async () => {
       outElem.innerText = 'Rコードを実行中...';
 
       try {
         const rCode = `
-testscore <- as.data.frame(matrix(c(${testscoreRData}), nrow=${testscoreRows}, byrow=TRUE))
+testdata <- as.data.frame(matrix(c(${testdataRData}), nrow=${testdataRows}, byrow=TRUE))
 ${rCodeElem.value.trim()}
         `;
         const result = await webR.evalRString(rCode);
@@ -208,8 +209,8 @@ ${rCodeElem.value.trim()}
       });
 
       // 全データをRに渡すために、R用のデータフォーマットを生成
-      testscoreRData = processedData.slice(1).map(row => row.slice(1).join(", ")).join(", ");
-      testscoreRows = totalRows;
+      testdataRData = processedData.slice(1).map(row => row.slice(1).join(", ")).join(", ");
+      testdataRows = totalRows;
     });
 
 
