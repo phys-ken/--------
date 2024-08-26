@@ -232,12 +232,6 @@ paste(output, collapse = "\n")
 
   `,
   sample2: `
-# サンプルコード2
-# Q3統計量(2PL)
-# 必要なライブラリの読み込み
-webr::install("subscore")
-library(subscore)
-
 # YenのQ3統計量の計算
 q3_result <- Yen.Q3(testdata, IRT.model="2pl")
 
@@ -251,28 +245,38 @@ diag(q3_matrix_no_diag) <- NA
 
 # 0.2を超える組み合わせを全て列挙（対角成分は無視、ひっくり返したペアも無視）
 over_0_2_indices <- which(q3_matrix_no_diag > 0.2, arr.ind = TRUE)
-unique_pairs <- list()
-pair_values <- list()
 
-for (i in 1:nrow(over_0_2_indices)) {
-  pair <- sort(over_0_2_indices[i,])
-  if (!any(sapply(unique_pairs, function(x) all(x == pair)))) {
-    unique_pairs <- append(unique_pairs, list(pair))
-    pair_values <- append(pair_values, list(q3_matrix_rounded[pair[1], pair[2]]))
-  }
-}
-
-# 組み合わせとQ3統計量をリスト形式で表示
-output <- capture.output({
-  cat("Q3統計量が0.2を超えた組み合わせ:\n")
-  for (i in 1:length(unique_pairs)) {
-    pair <- unique_pairs[[i]]
-    cat("(", pair[1], ", ", pair[2], "): ", sprintf("%.2f", pair_values[[i]]), "\n", sep="")
-  }
+if (!is.null(over_0_2_indices) && nrow(over_0_2_indices) > 0) {
+  unique_pairs <- list()
+  pair_values <- list()
   
-  cat("\nYenのQ3統計量行列:\n")
-  print(format(q3_matrix_rounded, digits = 2, nsmall = 2))
-})
+  for (i in 1:nrow(over_0_2_indices)) {
+    pair <- sort(over_0_2_indices[i,])
+    if (!any(sapply(unique_pairs, function(x) all(x == pair)))) {
+      unique_pairs <- append(unique_pairs, list(pair))
+      pair_values <- append(pair_values, list(q3_matrix_rounded[pair[1], pair[2]]))
+    }
+  }
+
+  # 組み合わせとQ3統計量をリスト形式で表示
+  output <- capture.output({
+    cat("Q3統計量が0.2を超えた組み合わせ:\n")
+    for (i in 1:length(unique_pairs)) {
+      pair <- unique_pairs[[i]]
+      cat("(", pair[1], ", ", pair[2], "): ", sprintf("%.2f", pair_values[[i]]), "\n", sep="")
+    }
+    
+    cat("\nYenのQ3統計量行列:\n")
+    print(format(q3_matrix_rounded, digits = 2, nsmall = 2))
+  })
+} else {
+  output <- capture.output({
+    cat("Q3統計量が0.2を超えた組み合わせは見つかりませんでした。\n")
+    
+    cat("\nYenのQ3統計量行列:\n")
+    print(format(q3_matrix_rounded, digits = 2, nsmall = 2))
+  })
+}
 
 # 結果の出力
 paste(output, collapse = "\n")
