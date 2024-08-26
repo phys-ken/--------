@@ -10,21 +10,61 @@ const runButton = document.getElementById('run-button');
 let testdataRData = '';
 let testdataRows = 0;
 
+// 新しい要素: プロットを表示するコンテナとキャンバス要素
+const plotContainer = document.createElement('div');
+plotContainer.id = 'plot-container';
+document.body.appendChild(plotContainer);
+let canvas = null;
+
 runButton.addEventListener('click', async () => {
-  outElem.innerText = 'Rコードを実行中...(このままお待ちください。エラー時にはエラーと表示されます。)';
+  outElem.innerText = 'Rコードを実行中...';
 
   try {
     const rCode = `
 testdata <- as.data.frame(matrix(c(${testdataRData}), nrow=${testdataRows}, byrow=TRUE))
 ${rCodeElem.value.trim()}
     `;
-    const result = await webR.evalRString(rCode);
 
-    // 結果を表示
+    // テキスト出力の処理
+    const result = await webR.evalRString(rCode);
     outElem.innerText = result;
+
+    // プロット表示のためのRデバイス設定
+    await webR.evalRVoid('options(device=webr::canvas)');
+
+    // プロット用のコンテナをクリア
+    plotContainer.replaceChildren();
+
+    // Rコードの実行
+    await webR.evalRVoid(rCode);
+    
   } catch (error) {
     console.error("Rコードの実行中にエラーが発生しました: ", error);
     outElem.innerText = 'エラーが発生しました: ' + error.message;
+  }
+
+  // プロット表示用の非同期ループ
+  for (;;) {
+    const output = await webR.read();
+    switch (output.type) {
+      case 'canvas':
+        if (output.data.event === 'canvasImage') {
+          // 画像データをキャンバスに描画
+          canvas.getContext('2d').drawImage(output.data.image, 0, 0);
+        } else if (output.data.event === 'canvasNewPage') {
+          // 新しいキャンバス要素を作成
+          canvas = document.createElement('canvas');
+          canvas.setAttribute('width', '1008');
+          canvas.setAttribute('height', '1008');
+          canvas.style.width = "450px";
+          canvas.style.height = "450px";
+          canvas.style.display = "block";  // プロットを下に配置
+          plotContainer.appendChild(canvas);
+        }
+        break;
+      default:
+        console.log(output);
+    }
   }
 });
 

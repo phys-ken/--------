@@ -26,6 +26,7 @@
 
         <section class="data-section">
             <h2>加工後のデータ</h2>
+            
             <div id="data-info" class="info"></div>
             <div class="table-container">
                 <table id="data-table">
@@ -52,11 +53,15 @@
         <section class="result-section">
             <h2>実行結果</h2>
             <button id="save-button" class="btn btn-secondary">実行結果をテキストファイルとして保存</button>
+            
             <div class="output-container">
                 <pre id="out">ここに結果が表示されます(初回実行はライブラリのロードのため時間がかかります。)</pre>
+                <div id="plot-container"></div>
             </div>
+            
         </section>
     </div>
+    
     <script type="module" src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     

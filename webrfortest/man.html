@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebR コーディングマニュアル</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>WebR コーディングマニュアル</h1>
+    </header>
+    <div class="container">
+        <section>
+            <h2>ライブラリのインストール</h2>
+            <p><code>webr::install()</code>関数を使ってライブラリをインストールします。すべてのパッケージが使用できるわけではないので、注意してください。</p>
+        </section>
+
+        <section>
+            <h2>出力の格納</h2>
+            <p>Rコードの結果は、最後に<code>output</code>変数に手動で代入する必要があります。例えば、以下のようにします:</p>
+            <pre><code>output <- "結果をここに格納"</code></pre>
+        </section>
+
+        <section>
+            <h2>出力の表示</h2>
+            <p>格納された出力を表示するには、<code>paste()</code>関数を使って文字列として出力します。例えば、</p>
+            <pre><code>paste(output, collapse = "\n")</code></pre>
+        </section>
+
+        <section>
+            <h2>デバイスと出力キャプチャ</h2>
+            <h3>デバイス (dev)</h3>
+            <p><code>dev.off()</code>は、現在のグラフィックデバイスを閉じて、描画が完了したことを示します。これにより、プロットが正しく表示されるようになります。</p>
+
+            <h3>出力キャプチャ (capture.output)</h3>
+            <p><code>capture.output()</code>は、Rコードの出力をキャプチャして文字列として格納します。<code>{}</code>の中に含まれるすべての出力がキャプチャされ、改行で区切られます。</p>
+            <pre><code>output <- capture.output({
+cat("出力1")
+cat("出力2")
+})
+paste(output, collapse = "\n")</code></pre>
+            <p>このように、各出力は改行で区切られ、結果として表示されます。</p>
+        </section>
+    </div>
+</body>
+</html>

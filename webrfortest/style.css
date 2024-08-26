@@ -166,6 +166,9 @@ td.highlight {
     margin-top: 20px;
     white-space: pre-wrap;
     word-wrap: break-word;
+    width: 100%;              /* 出力コンテナの幅を最大化 */
+    max-width: 100%;          /* 最大幅を100%に */
+    box-sizing: border-box;   /* パディングを含めたサイズ計算 */
 }
 
 @media (max-width: 600px) {
@@ -181,4 +184,19 @@ td.highlight {
         width: 100%;
         margin-bottom: 10px;
     }
+}
+
+#plot-container {
+    width: 100%;              /* コンテナを幅いっぱいに広げる */
+    height: auto;             /* 高さは内容に応じて自動調整 */
+    display: flex;
+    justify-content: center;  /* 中央揃え */
+    align-items: center;
+    margin-top: 20px;         /* テキスト出力との間隔を空ける */
+}
+
+#plot-container canvas {
+    width: 100%;              /* キャンバスを幅いっぱいに広げる */
+    max-width: 700px;         /* 最大幅を増やして700pxに設定 */
+    height: auto;             /* 高さは内容に応じて自動調整 */
 }
