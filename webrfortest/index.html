@@ -15,17 +15,18 @@
     <div class="container">
         <section class="upload-section">
             <h2>ファイルのアップロード</h2>
-            <button id="templatedownloadBtn_exmk" class="btn btn-secondary">テンプレートファイルのダウンロード (.xlsx)</button>
             <p>分析対象のExcelファイルを選択してください。ファイルは外部に送信されません。</p>
+            <p><a href="../index.html" target="_blank" rel="noopener noreferrer">テスト分析前処理ツール</a>で出力された、<strong>3_Exametrika_binary.xlsx</strong>は、そのままアップロードできます。</p>
             <div class="file-input-wrapper">
                 <input type="file" id="upload" accept=".xlsx" ;">
 
             </div>
             <button id="process-button" class="btn btn-primary">処理開始</button>
+            <button id="templatedownloadBtn_exmk" class="btn btn-secondary">テンプレートファイルのダウンロードはこちら (.xlsx)</button>
         </section>
 
         <section class="data-section">
-            <h2>加工後のデータ</h2>
+            <h2>処理されたデータ</h2>
             
             <div id="data-info" class="info"></div>
             <div class="table-container">
@@ -39,12 +40,13 @@
 
         <section class="code-section">
             <h2>分析コードの実行</h2>
-            <p>webRを使って、ブラウザ上でRを実行します。使えるライブラリに制限があります。</p>
+            <p>webRを使って、ブラウザ上でRを実行します。編集も可能です。<a href="./man.html" target="_blank" rel="noopener noreferrer">簡易マニュアル</a></p>
+            <p>testdataという変数に、アップロードしたテストの正誤データが保存されています。</p>
             <div class="button-group">
                 <button class="sample-code-button btn btn-outline" data-code="sample1">クロンバックのα係数</button>
                 <button class="sample-code-button btn btn-outline" data-code="sample2">YenのQ3統計量</button>
                 <button class="sample-code-button btn btn-outline" data-code="sample3">スクリープロット(カテゴリカル)</button>
-                <button class="sample-code-button btn btn-outline" data-code="sample4">フリー</button>
+                <button class="sample-code-button btn btn-outline" data-code="sample4">空欄</button>
             </div>
             <textarea id="r-code" class="code-editor" placeholder="ここにコードを記入"></textarea>
             <button id="run-button" class="btn btn-primary">コードを実行</button>
@@ -55,10 +57,9 @@
             <button id="save-button" class="btn btn-secondary">実行結果をテキストファイルとして保存</button>
             
             <div class="output-container">
-                <pre id="out">ここに結果が表示されます(初回実行はライブラリのロードのため時間がかかります。)</pre>
-                <div id="plot-container"></div>
+                <pre id="out">ここに結果が表示されます(初回実行時はライブラリのロードのため時間がかかります。)</pre>
             </div>
-            
+            <div id="plot-container"></div>
         </section>
     </div>
     
