@@ -11,7 +11,7 @@ let testdataRData = '';
 let testdataRows = 0;
 
 runButton.addEventListener('click', async () => {
-  outElem.innerText = 'Rコードを実行中...';
+  outElem.innerText = 'Rコードを実行中...(このままお待ちください。エラー時にはエラーと表示されます。)';
 
   try {
     const rCode = `
