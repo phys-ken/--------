@@ -291,6 +291,11 @@ paste(output, collapse = "\n")
 webr::install("polycor")
 library(polycor)
 
+# 分散が0の列(正答率100%の設問)を特定し、削除する
+delcol <- which(apply(testdata, 2, var) == 0)
+# 定数でない列のみを保持するデータフレーム修正
+testdata <- testdata[, apply(testdata, 2, var) != 0]
+
 tetra_corr_matrix <- hetcor(testdata)$correlations
 eigen_values <- eigen(tetra_corr_matrix)$values
 
