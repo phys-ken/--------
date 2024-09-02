@@ -232,6 +232,9 @@ paste(output, collapse = "\n")
 
   `,
   sample2: `
+webr::install("subscore")
+library(subscore)
+  
 # YenのQ3統計量の計算
 q3_result <- Yen.Q3(testdata, IRT.model="2pl")
 
